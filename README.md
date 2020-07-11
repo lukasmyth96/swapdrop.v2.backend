@@ -16,6 +16,8 @@ Note- this is command for linux - will differ for other OS. </br>
     This will create a file called db.sqlite3 in the root directory. <br>
     This file works as our database during development. </br>
     **Do NOT commit this file ever! - It doesn't play nicely with git**
+7. Create a superuser (admin) for yourself in the DB: </br>
+    `python manage.py createsuperuser`    
 
 # Development Guidelines
 
