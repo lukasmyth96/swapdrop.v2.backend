@@ -8,7 +8,8 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Product
-        exclude = ["owner"]
+        fields = "__all__"
+        read_only_fields = ["owner"]
 
     def create(self, validated_data):
         instance = self.Meta.model(**validated_data)
