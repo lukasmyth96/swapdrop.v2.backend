@@ -74,6 +74,9 @@ JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'mysite.utils.my_jwt_response_handler'
 }
 
+JWT_EXPIRATION_DELTA = 3600
+JWT_REFRESH_EXPIRATION_DELTA = 3600
+
 ROOT_URLCONF = 'mysite.urls'
 
 TEMPLATES = [
