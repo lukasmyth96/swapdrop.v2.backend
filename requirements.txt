@@ -3,3 +3,4 @@ djangorestframework==3.11.0
 djangorestframework-jwt==1.11.0
 django-cors-headers==3.4.0
 django-enumfield==2.0.1
+Pillow==7.2.0

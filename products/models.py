@@ -12,6 +12,7 @@ class Product(models.Model):
     title = models.CharField(max_length=50)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     status = enum.EnumField(ProductStatus, default=ProductStatus.LIVE)
+    image1 = models.ImageField(blank=True, upload_to="product_images")
 
     def __str__(self):
         return self.title
