@@ -69,11 +69,10 @@ CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
 )
 
-JWT_AUTH = {
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'mysite.utils.my_jwt_response_handler'
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1)
 }
-
-JWT_EXPIRATION_DELTA = datetime.timedelta(seconds=1000000)
 
 
 ROOT_URLCONF = 'mysite.urls'
