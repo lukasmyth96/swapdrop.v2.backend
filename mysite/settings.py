@@ -149,5 +149,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+IMAGE_UPLOAD_DIMENSIONS = (512, 512)
+IMAGE_UPLOAD_QUALITY = 40  # PIL quality param - ranges between [1, 95] 
