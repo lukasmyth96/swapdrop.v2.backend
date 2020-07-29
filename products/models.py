@@ -18,7 +18,7 @@ class Product(models.Model):
     image1 = models.ImageField(blank=True, upload_to="product_images")
 
     def __str__(self):
-        return self.title
+        return f'{self.title} OWNED BY {self.owner}'
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.image1 = resize_rotate_rename_compress_image(image=self.image1, dims=IMAGE_UPLOAD_DIMENSIONS, quality=IMAGE_UPLOAD_QUALITY, filename=self.title)
