@@ -12,9 +12,14 @@ from products.utils import resize_rotate_rename_compress_image
 class Product(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=50)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     status = enum.EnumField(ProductStatus, default=ProductStatus.LIVE)
+
+    pending_offers = models.ManyToManyField('Product', related_name='products_pending_offers')
+    rejected_offers = models.ManyToManyField('Product', related_name='products_rejected_offers')
+    agreed_swap = models.ForeignKey('Product', null=True, on_delete=models.SET_NULL, related_name='products_agreed_swap')
+
+    title = models.CharField(max_length=50)
     image1 = models.ImageField(blank=True, upload_to="product_images")
 
     def __str__(self):
