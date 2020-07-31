@@ -16,6 +16,7 @@ class Product(models.Model):
     status = enum.EnumField(ProductStatus, default=ProductStatus.LIVE)
 
     pending_offers = models.ManyToManyField('Product', related_name='products_pending_offers')
+    rejected_offers = models.ManyToManyField('Product', related_name='products_rejected_offers')
     agreed_swap = models.ForeignKey('Product', null=True, on_delete=models.SET_NULL, related_name='products_agreed_swap')
 
     title = models.CharField(max_length=50)
