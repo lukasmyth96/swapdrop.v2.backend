@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound
 
 from products.models import Product
-from offers.views import BaseOfferEndpoint, OfferDoesNotExist
+from offers.views._base_offer_endpoint import BaseOfferEndpoint, OfferDoesNotExist
 
 
 class RejectOffer(BaseOfferEndpoint):

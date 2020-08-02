@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from products.models import Product
 from products.model_enums import ProductStatus
-from offers.views import BaseOfferEndpoint, OfferDoesNotExist
+from offers.views._base_offer_endpoint import BaseOfferEndpoint, OfferDoesNotExist
 
 
 class ProductNotLive(Exception):
