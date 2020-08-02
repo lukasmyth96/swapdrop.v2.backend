@@ -14,6 +14,7 @@ from offers.serializers import AcceptOfferSerializer
 class OfferDoesNotExist(Exception):
     pass
 
+
 class ProductNotLive(Exception):
     pass
 
@@ -27,8 +28,10 @@ class AcceptOffer(APIView):
             desired_product, offered_product = self.get_products(desired_product_id,
                                                                  offered_product_id)
             self.validate_permissions(desired_product, offered_product)
+            self.assert_products_are_live(desired_product, offered_product)
+            self.assert_offer_exists(desired_product, offered_product)
             self.accept_offer_in_db(desired_product, offered_product)
-            response = Response('Offer rejected', 200)
+            response = Response('Offer accepted', 200)
         except serializers.ValidationError as e:
             response = HttpResponseBadRequest(
                 f'Invalid submission payload format: \n {e}')
@@ -38,7 +41,8 @@ class AcceptOffer(APIView):
         except PermissionError as e:
             response = HttpResponseForbidden(e)
         except ProductNotLive:
-            response = HttpResponseBadRequest('Desired or offered product is not LIVE')
+            response = HttpResponseBadRequest(
+                'Desired or offered product is not LIVE')
         except OfferDoesNotExist:
             response = HttpResponseNotFound('Offer does not exist')
 
@@ -65,22 +69,24 @@ class AcceptOffer(APIView):
         if errors:
             raise PermissionError(', '.join(errors))
 
-    def accept_offer_in_db(self, desired_product, offered_product):
+    def assert_products_are_live(self, desired_product, offered_product):
+
         if not (offered_product.is_live and desired_product.is_live):
             raise ProductNotLive()
 
-
-        if offered_product in desired_product.pending_offers.all():
-            desired_product.pending_offers.remove(offered_product)
-
-            offered_product.agreed_swap = desired_product
-            desired_product.agreed_swap = offered_product
-
-            offered_product.status = ProductStatus.PENDING_CHECKOUT
-            desired_product.status = ProductStatus.PENDING_CHECKOUT
-
-            offered_product.save()
-            desired_product.save()
-
-        else:
+    def assert_offer_exists(self, desired_product, offered_product):
+        if not offered_product in desired_product.pending_offers.all():
             raise OfferDoesNotExist()
+
+    def accept_offer_in_db(self, desired_product, offered_product):
+
+        desired_product.pending_offers.remove(offered_product)
+
+        offered_product.agreed_swap = desired_product
+        desired_product.agreed_swap = offered_product
+
+        offered_product.status = ProductStatus.PENDING_CHECKOUT
+        desired_product.status = ProductStatus.PENDING_CHECKOUT
+
+        offered_product.save()
+        desired_product.save()
