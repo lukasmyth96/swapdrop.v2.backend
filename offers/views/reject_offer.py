@@ -51,7 +51,7 @@ class RejectOffer(APIView):
     def validate_permissions(self, desired_product, offered_product):
         errors = []
 
-        if not user_owns_product(self.request.user, desired_product):
+        if not desired_product.is_owned_by(self.request.user):
             errors.append('The user does not own the desired product')
 
         if errors:
@@ -63,6 +63,3 @@ class RejectOffer(APIView):
             desired_product.rejected_offers.add(offered_product)
         else:
             raise OfferDoesNotExist()
-
-def user_owns_product(user, product):
-    return product.owner == user

@@ -53,16 +53,16 @@ class MakeOffer(APIView):
     def validate_permissions(self, desired_product, offered_products):
         errors = []
 
-        if not is_live(desired_product):
+        if not desired_product.is_live:
             errors.append('Desired Product is not LIVE')
 
-        if user_owns_product(self.request.user, desired_product):
+        if desired_product.is_owned_by(self.request.user):
             errors.append('The user owns the desired product')
 
-        if not all([is_live(product) for product in offered_products]):
+        if not all([product.is_live for product in offered_products]):
             errors.append('Not all offered products are live')
 
-        if not all([user_owns_product(self.request.user, product) for product in offered_products]):
+        if not all([product.is_owned_by(self.request.user) for product in offered_products]):
             errors.append('User does not own all offered products')
 
         if errors:
@@ -71,11 +71,3 @@ class MakeOffer(APIView):
     def save_offers_in_db(self, desired_product, offered_products):
         for offered_product in offered_products:
             desired_product.pending_offers.add(offered_product)
-
-
-def is_live(product):
-    return product.status == ProductStatus.LIVE
-
-
-def user_owns_product(user, product):
-    return product.owner == user

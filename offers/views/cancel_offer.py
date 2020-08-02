@@ -52,10 +52,10 @@ class CancelOffer(APIView):
     def validate_permissions(self, desired_product, offered_product):
         errors = []
 
-        if user_owns_product(self.request.user, desired_product):
+        if desired_product.is_owned_by(self.request.user):
             errors.append('The user owns the desired product')
 
-        if not user_owns_product(self.request.user, offered_product):
+        if not offered_product.is_owned_by(self.request.user):
             errors.append('User does not own the offered product')
 
         if errors:
@@ -66,6 +66,3 @@ class CancelOffer(APIView):
             desired_product.pending_offers.remove(offered_product)
         else:
             raise OfferDoesNotExist()
-
-def user_owns_product(user, product):
-    return product.owner == user

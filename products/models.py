@@ -28,6 +28,13 @@ class Product(models.Model):
     def __str__(self):
         return f'{self.title} OWNED BY {self.owner}'
 
+    @property
+    def is_live(self):
+        return self.status == ProductStatus.LIVE
+
+    def is_owned_by(self, user):
+        return self.owner == user
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.image1 = resize_rotate_rename_compress_image(
             image=self.image1, dims=IMAGE_UPLOAD_DIMENSIONS, quality=IMAGE_UPLOAD_QUALITY, filename=self.title)
