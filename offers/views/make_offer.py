@@ -1,23 +1,15 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import authentication, permissions, serializers
-from django.contrib.auth.models import User
+from rest_framework import serializers
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
 
 from products.models import Product
-from products.model_enums import ProductStatus
-
 from offers.serializers import MakeOfferSerializer
-
-
-class OfferDoesNotExist(Exception):
-    pass
 
 
 class MakeOffer(APIView):
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
 
         try:
             desired_product_id, offered_product_ids = self.parse_payload(
@@ -27,25 +19,27 @@ class MakeOffer(APIView):
             self.validate_permissions(desired_product, offered_products)
             self.save_offers_in_db(desired_product, offered_products)
             response = Response('Offers created', 200)
-        except serializers.ValidationError as e:
+        except serializers.ValidationError as exc:
             response = HttpResponseBadRequest(
-                f'Invalid submission payload format: \n {e}')
+                f'Invalid submission payload format: \n {exc}')
         except Product.DoesNotExist:
             response = HttpResponseBadRequest(
                 'Not product exists with given ID')
-        except PermissionError as e:
-            response = HttpResponseForbidden(e)
+        except PermissionError as exc:
+            response = HttpResponseForbidden(exc)
 
         return response
 
-    def parse_payload(self, request):
+    @staticmethod
+    def parse_payload(request):
         serializer = MakeOfferSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         desired_product_id = serializer.validated_data['desired_product_id']
         offered_product_ids = serializer.validated_data['offered_product_ids']
         return desired_product_id, offered_product_ids
 
-    def get_products(self, desired_product_id, offered_product_ids):
+    @staticmethod
+    def get_products(desired_product_id, offered_product_ids):
         desired_product = Product.objects.get(id=desired_product_id)
         offered_products = Product.objects.filter(id__in=offered_product_ids)
         return desired_product, offered_products
@@ -68,6 +62,7 @@ class MakeOffer(APIView):
         if errors:
             raise PermissionError(', '.join(errors))
 
-    def save_offers_in_db(self, desired_product, offered_products):
+    @staticmethod
+    def save_offers_in_db(desired_product, offered_products):
         for offered_product in offered_products:
             desired_product.pending_offers.add(offered_product)

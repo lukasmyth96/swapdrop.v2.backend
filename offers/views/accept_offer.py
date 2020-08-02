@@ -1,45 +1,37 @@
-from django.shortcuts import render
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import authentication, permissions, serializers
-from django.contrib.auth.models import User
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound
+from rest_framework import serializers
 
 from products.models import Product
 from products.model_enums import ProductStatus
-
-from offers.serializers import AcceptOfferSerializer
-
-
-class OfferDoesNotExist(Exception):
-    pass
+from offers.views import BaseOfferEndpoint, OfferDoesNotExist
 
 
 class ProductNotLive(Exception):
     pass
 
 
-class AcceptOffer(APIView):
+class AcceptOffer(BaseOfferEndpoint):
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         try:
             desired_product_id, offered_product_id = self.parse_payload(
                 request)
             desired_product, offered_product = self.get_products(desired_product_id,
                                                                  offered_product_id)
-            self.validate_permissions(desired_product, offered_product)
+            self.validate_permissions(desired_product)
             self.assert_products_are_live(desired_product, offered_product)
             self.assert_offer_exists(desired_product, offered_product)
             self.accept_offer_in_db(desired_product, offered_product)
             response = Response('Offer accepted', 200)
-        except serializers.ValidationError as e:
+        except serializers.ValidationError as exc:
             response = HttpResponseBadRequest(
-                f'Invalid submission payload format: \n {e}')
+                f'Invalid submission payload format: \n {exc}')
         except Product.DoesNotExist:
             response = HttpResponseBadRequest(
                 'Not product exists with given ID')
-        except PermissionError as e:
-            response = HttpResponseForbidden(e)
+        except PermissionError as exc:
+            response = HttpResponseForbidden(exc)
         except ProductNotLive:
             response = HttpResponseBadRequest(
                 'Desired or offered product is not LIVE')
@@ -48,19 +40,8 @@ class AcceptOffer(APIView):
 
         return response
 
-    def parse_payload(self, request):
-        serializer = AcceptOfferSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        desired_product_id = serializer.validated_data['desired_product_id']
-        offered_product_id = serializer.validated_data['offered_product_id']
-        return desired_product_id, offered_product_id
 
-    def get_products(self, desired_product_id, offered_product_id):
-        desired_product = Product.objects.get(id=desired_product_id)
-        offered_product = Product.objects.get(id=offered_product_id)
-        return desired_product, offered_product
-
-    def validate_permissions(self, desired_product, offered_product):
+    def validate_permissions(self, desired_product):
         errors = []
 
         if not desired_product.is_owned_by(self.request.user):
@@ -68,17 +49,15 @@ class AcceptOffer(APIView):
 
         if errors:
             raise PermissionError(', '.join(errors))
-
-    def assert_products_are_live(self, desired_product, offered_product):
+    
+    @staticmethod
+    def assert_products_are_live(desired_product, offered_product):
 
         if not (offered_product.is_live and desired_product.is_live):
             raise ProductNotLive()
 
-    def assert_offer_exists(self, desired_product, offered_product):
-        if not offered_product in desired_product.pending_offers.all():
-            raise OfferDoesNotExist()
-
-    def accept_offer_in_db(self, desired_product, offered_product):
+    @staticmethod
+    def accept_offer_in_db(desired_product, offered_product):
 
         desired_product.pending_offers.remove(offered_product)
 
