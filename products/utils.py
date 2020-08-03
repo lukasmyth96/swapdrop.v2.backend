@@ -7,6 +7,9 @@ from PIL import Image
 
 def resize_rotate_rename_compress_image(image, dims, quality, filename):
 
+    if not bool(image):
+        return image
+
     pil_img = Image.open(image)
     img_format = pil_img.format
 
