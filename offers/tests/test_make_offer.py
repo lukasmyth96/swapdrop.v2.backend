@@ -76,7 +76,6 @@ class MakeOfferTestCase(APITestCase):
                    'offeredProductIds': [self.product2.id]}
         response = self.client.post('/offers/make/', payload, format='json')
         self.assertEqual(response.status_code, 403)
-        print(response.content.decode('utf-8'))
         self.assertEqual(len(self.product2.pending_offers.all()), 0)
 
-    
+
