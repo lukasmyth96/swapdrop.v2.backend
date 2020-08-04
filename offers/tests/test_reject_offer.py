@@ -17,22 +17,18 @@ class MakeRejectTestCase(APITestCase):
             username='user1', password='user1_password')
         self.product1 = Product.objects.create(
             owner=self.user1, title='product1')
-
-        self.user2 = User.objects.create_user(username='user2')
+            
+        self.user2 = User.objects.create_user(username='user2', password='user2_password')
         self.product2 = Product.objects.create(
             owner=self.user2, title='product2')
 
         self.client = APIClient()
-        self.client.login(username='user1', password='user1_password')
-        refresh = RefreshToken.for_user(self.user1)
+        self.client.login(username='user2', password='user2_password')
+        refresh = RefreshToken.for_user(self.user2)
         self.client.credentials(
             HTTP_AUTHORIZATION='Bearer ' + str(refresh.access_token))
 
-        # remove product1 from pending_offers of product2 and adding it to the rejected_offers and then checking if it was done
-        self.product2.pending_offers.remove(self.product1)
-        self.product2.rejected_offers.add(self.product1)
-        self.assertFalse(self.product1 in self.product2.pending_offers.all())
-        self.assertTrue(self.product1 in self.product2.rejected_offers.all())
+        self.product2.pending_offers.add(self.product1)
 
     def test_successfull_call(self):
         payload = {'desiredProductId': self.product2.id,
@@ -60,7 +56,7 @@ class MakeRejectTestCase(APITestCase):
         self.assertFalse(self.product1 in self.product2.rejected_offers.all())
 
     def test_fail_if_desired_product_not_owned_by_current_user(self):
-        payload = {'desiredProductId': self.product2.id,
+        payload = {'desiredProductId': self.product1.id,
                    'offeredProductId': self.product1.id}  # note order of products reverse here
         response = self.client.post('/offers/reject/', payload, format='json')
         self.assertEqual(response.status_code, 403)
