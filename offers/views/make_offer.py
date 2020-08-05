@@ -24,7 +24,7 @@ class MakeOffer(APIView):
                 f'Invalid submission payload format: \n {exc}')
         except Product.DoesNotExist:
             response = HttpResponseBadRequest(
-                'Not product exists with given ID')
+                'No product exists with given ID')
         except PermissionError as exc:
             response = HttpResponseForbidden(exc)
 
