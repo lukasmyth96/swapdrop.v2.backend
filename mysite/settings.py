@@ -60,22 +60,19 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
 }
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
 )
 
-JWT_AUTH = {
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'mysite.utils.my_jwt_response_handler'
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=600),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7)
 }
-
-JWT_EXPIRATION_DELTA = datetime.timedelta(seconds=1000000)
 
 
 ROOT_URLCONF = 'mysite.urls'
@@ -147,3 +144,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+IMAGE_UPLOAD_DIMENSIONS = (512, 512)
+IMAGE_UPLOAD_QUALITY = 40  # PIL quality param - ranges between [1, 95] 
