@@ -24,24 +24,31 @@ class MakeOfferTestCase(APITestCase):
         refresh = RefreshToken.for_user(self.user1)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(refresh.access_token))
 
+    
+    def send_request_and_refresh_objects(self, payload):
+        response = self.client.post('/offers/make/', payload, format='json')
+        self.product1.refresh_from_db()  # important!
+        self.product2.refresh_from_db()
+        return response
+
     def test_successfull_call(self):
         payload = {'desiredProductId': self.product2.id,
                    'offeredProductIds': [self.product1.id]}
-        response = self.client.post('/offers/make/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.product1 in self.product2.pending_offers.all())
 
     def test_fail_if_invalid_payload_field(self):
         payload = {'invalid_field': self.product2.id,
                    'offeredProductIds': [self.product1.id]}
-        response = self.client.post('/offers/make/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 400)
         self.assertFalse(self.product1 in self.product2.pending_offers.all())
 
     def test_fail_if_product_id_that_does_not_exist(self):
         payload = {'desiredProductId': str(uuid4()),
                    'offeredProductIds': [self.product1.id]}
-        response = self.client.post('/offers/make/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 400)
         self.assertFalse(self.product1 in self.product2.pending_offers.all())
 
@@ -50,7 +57,7 @@ class MakeOfferTestCase(APITestCase):
         self.product2.save()
         payload = {'desiredProductId': self.product2.id,
                    'offeredProductIds': [self.product1.id]}
-        response = self.client.post('/offers/make/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 403)
         self.assertFalse(self.product1 in self.product2.pending_offers.all())
 
@@ -60,21 +67,21 @@ class MakeOfferTestCase(APITestCase):
         self.product1.save()
         payload = {'desiredProductId': self.product2.id,
                    'offeredProductIds': [self.product1.id]}
-        response = self.client.post('/offers/make/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 403)
         self.assertFalse(self.product1 in self.product2.pending_offers.all())
 
     def test_fail_if_desired_product_owned_by_current_user(self):
         payload = {'desiredProductId': self.product1.id,
                    'offeredProductIds': [self.product2.id]}  # note order of products reverse here
-        response = self.client.post('/offers/make/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 403)
         self.assertFalse(self.product1 in self.product2.pending_offers.all())
 
     def test_fail_if_offered_product_not_owned_by_current_user(self):
         payload = {'desiredProductId': self.product2.id,
                    'offeredProductIds': [self.product2.id]}
-        response = self.client.post('/offers/make/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(len(self.product2.pending_offers.all()), 0)
 

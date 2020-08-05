@@ -30,6 +30,12 @@ class MakeRejectTestCase(APITestCase):
 
         self.product2.pending_offers.add(self.product1)
 
+    def send_request_and_refresh_objects(self, payload):
+        response = self.client.post('/offers/reject/', payload, format='json')
+        self.product1.refresh_from_db()  # important!
+        self.product2.refresh_from_db()
+        return response
+
     def test_successfull_call(self):
         payload = {'desiredProductId': self.product2.id,
                    'offeredProductId': self.product1.id}
@@ -42,7 +48,7 @@ class MakeRejectTestCase(APITestCase):
     def test_fail_if_invalid_payload_field(self):
         payload = {'invalid_field': self.product2.id,
                    'offeredProductIds': self.product1.id}
-        response = self.client.post('/offers/reject/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(self.product1 in self.product2.pending_offers.all())
         self.assertFalse(self.product1 in self.product2.rejected_offers.all())
@@ -50,7 +56,7 @@ class MakeRejectTestCase(APITestCase):
     def test_fail_if_product_id_that_does_not_exist(self):
         payload = {'desiredProductId': str(uuid4()),
                    'offeredProductIds': self.product1.id}
-        response = self.client.post('/offers/make/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(self.product1 in self.product2.pending_offers.all())
         self.assertFalse(self.product1 in self.product2.rejected_offers.all())
@@ -58,15 +64,14 @@ class MakeRejectTestCase(APITestCase):
     def test_fail_if_desired_product_not_owned_by_current_user(self):
         payload = {'desiredProductId': self.product1.id,
                    'offeredProductId': self.product1.id}  # note order of products reverse here
-        response = self.client.post('/offers/reject/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 403)
         self.assertTrue(self.product1 in self.product2.pending_offers.all())
         self.assertFalse(self.product1 in self.product2.rejected_offers.all())
 
     def test_fail_if_offer_does_not_exist(self):
-        self.product2.pending_offers.remove(
-            self.product1)  # remove offer for this test
+        self.product2.pending_offers.remove(self.product1)  # remove offer for this test
         payload = {'desiredProductId': self.product2.id,
                    'offeredProductId': self.product1.id}
-        response = self.client.post('/offers/reject/', payload, format='json')
+        response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 404)
