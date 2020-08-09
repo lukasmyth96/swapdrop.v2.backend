@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 
 from products.serializers import ProductSerializer
 from products.models import Product
@@ -22,6 +22,8 @@ class ReviewOffersView(APIView):
             response = Response(data=serialized_offers, status=HTTP_200_OK)
         except (PermissionError, ProductNotLive):
             response = HttpResponseForbidden("You do not have permission to view the offers")
+        except Product.DoesNotExist:
+            response = HttpResponseNotFound("Product does not exist")
         return response
 
     @staticmethod
