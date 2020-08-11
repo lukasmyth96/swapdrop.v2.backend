@@ -10,7 +10,7 @@ from products.models import Product
 from products.model_enums import ProductStatus
 
 
-class MakeRejectTestCase(APITestCase):
+class RejectOfferTestCase(APITestCase):
 
     def setUp(self):
         self.user1 = User.objects.create_user(

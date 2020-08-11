@@ -14,15 +14,16 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class FeedListView(generics.ListAPIView):
     serializer_class = ProductSerializer
-    model = serializer_class.Meta.model
+    model = Product
     
     def get_queryset(self):
         products = Product.objects.filter(status=ProductStatus.LIVE).exclude(owner=self.request.user)
         return products
 
+
 class YourItemsListView(generics.ListAPIView):
     serializer_class = ProductSerializer
-    model = serializer_class.Meta.model
+    model = Product
 
     def get_queryset(self):
         products = Product.objects.filter(owner=self.request.user)
