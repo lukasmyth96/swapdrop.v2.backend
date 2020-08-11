@@ -10,7 +10,7 @@ from products.models import Product
 from products.model_enums import ProductStatus
 
 
-class MakeCancelTestCase(APITestCase):
+class CancelOfferTestCase(APITestCase):
 
     def setUp(self):
         self.user1 = User.objects.create_user(username='user1', password='user1_password')
