@@ -24,3 +24,7 @@ jobs:
       - store_artifacts:
           path: test-reports/
           destination: python_app
+      - run:
+          name: Running Flake8
+          command: |
+            flake8
