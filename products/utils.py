@@ -5,6 +5,7 @@ import os
 from django.core.files import File
 from PIL import Image
 
+
 def resize_rotate_rename_compress_image(image, dims, quality, filename):
 
     if not bool(image):

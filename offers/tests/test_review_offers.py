@@ -1,9 +1,6 @@
-import json
 from uuid import uuid4
 from django.contrib.auth.models import User
-from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
-from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from products.models import Product
@@ -52,7 +49,7 @@ class ReviewOffersTestCase(APITestCase):
         self.assertIsNone(getattr(response, 'data', None))
 
     def test_fail_if_invalid_product_id_format(self):
-        response = self.client.get(f'/offers/review/an_invalid_product_id/')
+        response = self.client.get('/offers/review/an_invalid_product_id/')
         self.assertEqual(response.status_code, 400)
         self.assertIsNone(getattr(response, 'data', None))
 

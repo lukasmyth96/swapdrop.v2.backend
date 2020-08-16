@@ -25,7 +25,5 @@ class BaseOfferEndpoint(APIView):
 
     @staticmethod
     def assert_offer_exists(desired_product, offered_product):
-        if not offered_product in desired_product.pending_offers.all():
+        if offered_product not in desired_product.pending_offers.all():
             raise OfferDoesNotExist()
-
-

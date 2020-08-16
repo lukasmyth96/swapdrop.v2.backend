@@ -30,7 +30,6 @@ class CancelOffer(BaseOfferEndpoint):
             response = HttpResponseNotFound('Offer does not exist')
         return response
 
-
     def validate_permissions(self, desired_product, offered_product):
         errors = []
 
