@@ -62,5 +62,4 @@ class ReviewOffersTestCase(APITestCase):
         self.assertEqual(response.status_code, 404)
         self.assertIsNone(getattr(response, 'data', None))
 
-    def test_circle_ci():
-        assert(1==2)
+
