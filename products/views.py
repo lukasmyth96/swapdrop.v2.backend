@@ -1,5 +1,3 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 from rest_framework import viewsets, generics
 
 from products.serializers import ProductSerializer
@@ -11,6 +9,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
 
 class FeedListView(generics.ListAPIView):
     serializer_class = ProductSerializer
@@ -28,4 +27,3 @@ class YourItemsListView(generics.ListAPIView):
     def get_queryset(self):
         products = Product.objects.filter(owner=self.request.user)
         return products
-

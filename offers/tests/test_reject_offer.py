@@ -1,13 +1,9 @@
-import json
 from uuid import uuid4
 from django.contrib.auth.models import User
-from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
-from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from products.models import Product
-from products.model_enums import ProductStatus
 
 
 class RejectOfferTestCase(APITestCase):

@@ -1,13 +1,9 @@
-import json
 from uuid import uuid4
 from django.contrib.auth.models import User
-from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
-from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from products.models import Product
-from products.model_enums import ProductStatus
 
 
 class CancelOfferTestCase(APITestCase):
@@ -50,7 +46,7 @@ class CancelOfferTestCase(APITestCase):
 
     def test_fail_if_product_id_that_does_not_exist(self):
         payload = {'desiredProductId': str(uuid4()),
-                  'offeredProductIds': self.product1.id}
+                   'offeredProductIds': self.product1.id}
         response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(self.product1 in self.product2.pending_offers.all())
@@ -64,7 +60,7 @@ class CancelOfferTestCase(APITestCase):
 
     def test_fail_if_offered_product_not_owned_by_current_user(self):
         payload = {'desiredProductId': self.product2.id,
-                    'offeredProductId': self.product2.id}  
+                   'offeredProductId': self.product2.id}
         response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 403)
         self.assertTrue(self.product1 in self.product2.pending_offers.all())
