@@ -61,3 +61,6 @@ class ReviewOffersTestCase(APITestCase):
         response = self.client.get(f'/offers/review/{random_uuid}/')
         self.assertEqual(response.status_code, 404)
         self.assertIsNone(getattr(response, 'data', None))
+
+    def test_circle_ci():
+        assert(1==2)
