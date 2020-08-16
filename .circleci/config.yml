@@ -28,4 +28,4 @@ jobs:
           name: Running Flake8
           command: |
             . venv/bin/activate
-            python3 -m flake8
+            flake8
