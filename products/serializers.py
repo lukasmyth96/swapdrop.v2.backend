@@ -9,10 +9,11 @@ class ProductSerializer(serializers.ModelSerializer):
 
         model = Product
         exclude = ['pending_offers', 'rejected_offers', 'agreed_swap']
-        read_only_fields = ["owner"]
+        read_only_fields = ["owner", "is_owned_by_current_user", ""]
 
     def create(self, validated_data):
         instance = self.Meta.model(**validated_data)
         instance.owner = self.context["request"].user
         instance.save()
         return instance
+
