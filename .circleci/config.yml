@@ -20,11 +20,11 @@ jobs:
           name: Running Tests
           command: |
             . venv/bin/activate
-            python3 manage.py test
+            python manage.py test
       - store_artifacts:
           path: test-reports/
           destination: python_app
       - run:
           name: Running Flake8
           command: |
-            flake8
+            python -m flake8
