@@ -24,8 +24,9 @@ class Product(models.Model):
 
     title = models.CharField(max_length=50)
     image1 = models.ImageField(blank=True, upload_to="product_images")
-    is_owned_by_current_user = models.BooleanField()
-    number_of_offers = models.CharField(max_length=50)
+    is_owned_by_current_user = models.BooleanField(default=(User == owner))
+
+    number_of_offers = models.CharField(max_length=50, default=pending_offers)
 
     def __str__(self):
         return f'{self.title} OWNED BY {self.owner}'
