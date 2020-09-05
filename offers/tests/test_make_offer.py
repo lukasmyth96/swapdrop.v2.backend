@@ -1,9 +1,6 @@
-import json
 from uuid import uuid4
 from django.contrib.auth.models import User
-from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
-from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from products.models import Product
@@ -24,7 +21,6 @@ class MakeOfferTestCase(APITestCase):
         refresh = RefreshToken.for_user(self.user1)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(refresh.access_token))
 
-    
     def send_request_and_refresh_objects(self, payload):
         response = self.client.post('/offers/make/', payload, format='json')
         self.product1.refresh_from_db()  # important!
@@ -61,7 +57,6 @@ class MakeOfferTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertFalse(self.product1 in self.product2.pending_offers.all())
 
-    
     def test_fail_if_offered_product_not_live(self):
         self.product1.status = ProductStatus.PENDING_CHECKOUT
         self.product1.save()
@@ -84,5 +79,3 @@ class MakeOfferTestCase(APITestCase):
         response = self.send_request_and_refresh_objects(payload)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(len(self.product2.pending_offers.all()), 0)
-
-

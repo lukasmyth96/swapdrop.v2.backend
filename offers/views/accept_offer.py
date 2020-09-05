@@ -40,7 +40,6 @@ class AcceptOffer(BaseOfferEndpoint):
 
         return response
 
-
     def validate_permissions(self, desired_product):
         errors = []
 

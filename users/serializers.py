@@ -2,9 +2,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth import password_validation as password_validator
 from django.core.validators import validate_email
 from rest_framework import serializers
-from rest_framework_jwt.settings import api_settings
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.tokens import RefreshToken
+
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)

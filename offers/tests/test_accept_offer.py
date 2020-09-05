@@ -1,16 +1,13 @@
-import json
 from uuid import uuid4
 from django.contrib.auth.models import User
-from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
-from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from products.models import Product
 from products.model_enums import ProductStatus
 
 
-class MakeAcceptTestCase(APITestCase):
+class AcceptOfferTestCase(APITestCase):
 
     def setUp(self):
         self.user1 = User.objects.create_user(
@@ -41,10 +38,9 @@ class MakeAcceptTestCase(APITestCase):
         self.assertFalse(self.product1.agreed_swap == self.product2)
         self.assertFalse(self.product2.agreed_swap == self.product1)
         self.assertTrue(self.product1.status == ProductStatus.LIVE)
-        self.assertTrue(self.product2.status ==ProductStatus.LIVE)
+        self.assertTrue(self.product2.status == ProductStatus.LIVE)
 
-
-    def test_successfull_call(self):
+    def test_successfull_call(self): 
         payload = {'desiredProductId': self.product2.id,
                    'offeredProductId': self.product1.id}
         response = self.send_request_and_refresh_objects(payload)
@@ -53,15 +49,13 @@ class MakeAcceptTestCase(APITestCase):
         self.assertFalse(self.product1 in self.product2.pending_offers.all())
         self.assertTrue(self.product1.agreed_swap == self.product2)
         self.assertTrue(self.product2.agreed_swap == self.product1)
-        self.assertTrue(self.product1.status ==
-                         ProductStatus.PENDING_CHECKOUT)
-        self.assertTrue(self.product2.status ==
-                         ProductStatus.PENDING_CHECKOUT)
+        self.assertTrue(self.product1.status == ProductStatus.PENDING_CHECKOUT)
+        self.assertTrue(self.product2.status == ProductStatus.PENDING_CHECKOUT)
 
     def test_fail_if_invalid_payload_field(self):
         payload = {'invalid_field': self.product2.id,
                    'offeredProductIds': self.product1.id}
-        response = self.send_request_and_refresh_objects(payload)
+        self.send_request_and_refresh_objects(payload)
         self.assert_no_change_in_db()
 
     def test_fail_if_product_id_that_does_not_exist(self):
@@ -72,10 +66,8 @@ class MakeAcceptTestCase(APITestCase):
         self.assertTrue(self.product1 in self.product2.pending_offers.all())
         self.assertFalse(self.product1.agreed_swap == self.product2)
         self.assertFalse(self.product2.agreed_swap == self.product1)
-        self.assertTrue(self.product1.status ==
-                         ProductStatus.LIVE)
-        self.assertTrue(self.product2.status ==
-                         ProductStatus.LIVE)
+        self.assertTrue(self.product1.status == ProductStatus.LIVE)
+        self.assertTrue(self.product2.status == ProductStatus.LIVE)
 
     def test_fail_if_desired_product_owned_by_current_user(self):
         payload = {'desiredProductId': self.product1.id,
@@ -85,10 +77,8 @@ class MakeAcceptTestCase(APITestCase):
         self.assertTrue(self.product1 in self.product2.pending_offers.all())
         self.assertFalse(self.product1.agreed_swap == self.product2)
         self.assertFalse(self.product2.agreed_swap == self.product1)
-        self.assertTrue(self.product1.status ==
-                         ProductStatus.LIVE)
-        self.assertTrue(self.product2.status ==
-                         ProductStatus.LIVE)
+        self.assertTrue(self.product1.status == ProductStatus.LIVE)
+        self.assertTrue(self.product2.status == ProductStatus.LIVE)
 
     def test_fail_if_offer_does_not_exist(self):
         self.product2.pending_offers.remove(
@@ -99,10 +89,8 @@ class MakeAcceptTestCase(APITestCase):
         self.assertEqual(response.status_code, 404)
         self.assertFalse(self.product1.agreed_swap == self.product2)
         self.assertFalse(self.product2.agreed_swap == self.product1)
-        self.assertTrue(self.product1.status ==
-                         ProductStatus.LIVE)
-        self.assertTrue(self.product2.status ==
-                         ProductStatus.LIVE)
+        self.assertTrue(self.product1.status == ProductStatus.LIVE)
+        self.assertTrue(self.product2.status == ProductStatus.LIVE)
 
     def test_fail_if_offered_product_not_live(self):
         self.product1.status = ProductStatus.PENDING_CHECKOUT
@@ -123,4 +111,3 @@ class MakeAcceptTestCase(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertFalse(self.product1.agreed_swap == self.product2)
         self.assertFalse(self.product2.agreed_swap == self.product1)
-
